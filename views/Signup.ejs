@@ -1,0 +1,71 @@
+<%-include('partials/header.ejs')%>
+
+<form>
+<h2>Sign Up</h2>
+<label for="email">Email</label>
+<input type="text" name="email"  required>
+<p class="email error"></p>
+
+
+<label for="password">Password</label>
+<input type="password" name="password" required>
+<p class="password error"></p>
+
+<button>SignUp</button>
+
+</form>
+
+<script>
+var form = document.querySelector('form');
+
+var emailError=document.querySelector('.email.error');
+var passwordError=document.querySelector('.password.error');
+
+form.addEventListener('submit',async (e)=>{
+    e.preventDefault();
+
+    var email=form.email.value;
+    var password=form.password.value;
+    
+    //reset error txt values
+    emailError.textContent="";
+    passwordError.textContent="";
+
+
+    // console.log(email,password);
+
+    try{
+            const res=await fetch('/signup',{
+                method:'POST',
+                body:JSON.stringify({email:email,password:password}),
+                headers:{'Content-Type':'application/json'},
+            });
+        const data=await res.json();
+        console.log("data is"+Object.values(data));
+
+        //property in data.errors is being send from auth controller so names must match i.e.
+        // if auth Controller sends res.send({errors}) then in <script> we have to use 'errors' inside data name must match.
+        if(data.errors){
+            console.log('error cooured');
+            emailError.textContent=data.errors.email;
+            passwordError.textContent=data.errors.password;
+        }
+
+
+        //property in data.user is being send from auth controller so alues must match i.e.
+        // if auth Controller sends res.send({userObj:User._id}) then in <script> we have to use userObj inside data  
+         if(data.UserObj){
+            location.assign('/');
+        }
+    }
+    catch{
+        console.log(err);
+    }
+
+});
+
+</script>
+
+
+
+<%-include('partials/footer.ejs')%>
